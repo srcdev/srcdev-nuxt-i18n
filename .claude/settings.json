@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(node scripts/build-i18n.mjs:*)",
+      "Bash(node scripts/build-i18n.mjs --watch)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git show:*)",
+      "Bash(git log:*)",
+      "Bash(git status)",
+      "Bash(git mv:*)",
+      "Bash(git tag:*)",
+      "Bash(gh release:*)",
+      "Bash(npx nuxi:*)",
+      "Bash(npx tsc:*)",
+      "Edit(.claude/skills/**)"
+    ],
+    "additionalDirectories": [
+      "/Users/simoncornforth/websites/srcdev-nuxt-i18n/.claude/skills",
+      "/Users/simoncornforth/websites/srcdev-nuxt-i18n/i18n-source",
+      "/Users/simoncornforth/websites/srcdev-nuxt-i18n/i18n",
+      "/Users/simoncornforth/websites/srcdev-nuxt-i18n/composables"
+    ]
+  }
+}

@@ -81,11 +81,12 @@ over. This layer's `i18n-source` contains only:
 
 ### 1. Wire up a consuming app locally (test it works)
 
-The first consuming candidate is `luxury-locs-by-natasha-nuxt3`
-(`/Users/simoncornforth/websites/luxury-locs-by-natasha-nuxt3`).
-That app currently has zero i18n — it's a clean test bed.
+The consuming app is TBD — `luxury-locs-by-natasha-nuxt3` may get a fun
+easter-egg translation but is not confirmed as the first production consumer.
+Any Nuxt 4 app can consume this layer.
 
 Steps:
+
 - Add `@nuxtjs/i18n` and `markdown-it` to the consuming app's `package.json`
 - Add `extends: ["../srcdev-nuxt-i18n"]` to its `nuxt.config.ts`
 - Run `npm install` in both repos
@@ -114,6 +115,7 @@ i18n config. The layer provides the base, the app adds on top.
 ### 3. Publish to npm
 
 When the layer is ready for use across multiple projects:
+
 - Create a GitHub repo for `srcdev-nuxt-i18n`
 - Push and create a release
 - `npm publish` (already configured: `private` not set, `files` array defined)
@@ -129,6 +131,7 @@ sense once the first consuming app is working.
 ### 5. Update srcdev-design-system to use this layer
 
 Once published to npm, `srcdev-design-system` should be updated to:
+
 - Remove its own `@nuxtjs/i18n` config from `nuxt.config.ts`
 - Remove `scripts/build-i18n.mjs` (or keep for local dev of the layer itself)
 - Add `srcdev-nuxt-i18n` to its `extends` array
@@ -144,7 +147,7 @@ it's a styling concern for each consuming app.
 
 ## Repo structure reference
 
-```
+```text
 srcdev-nuxt-i18n/
 ├── .gitignore
 ├── package.json
