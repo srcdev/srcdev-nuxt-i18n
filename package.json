@@ -1,0 +1,31 @@
+{
+  "name": "srcdev-nuxt-i18n",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "files": [
+    "composables",
+    "i18n",
+    "scripts",
+    "nuxt.config.ts"
+  ],
+  "scripts": {
+    "build:i18n": "node scripts/build-i18n.mjs",
+    "build:i18n:watch": "node scripts/build-i18n.mjs --watch",
+    "dev": "nuxt dev",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@nuxtjs/i18n": "10.2.1",
+    "markdown-it": "14.1.0"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "14.1.2",
+    "@types/node": "22.0.0",
+    "nuxt": "4.3.0",
+    "typescript": "5.8.3"
+  },
+  "peerDependencies": {
+    "nuxt": "^4.0.0"
+  }
+}

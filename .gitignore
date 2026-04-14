@@ -1,0 +1,17 @@
+# Nuxt
+.nuxt
+.output
+dist
+
+# Node
+node_modules
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode
+.idea

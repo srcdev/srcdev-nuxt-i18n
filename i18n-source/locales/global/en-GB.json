@@ -1,0 +1,47 @@
+{
+  "global": {
+    "siteName": ""
+  },
+  "errors": {
+    "404": {
+      "title": "Page Not Found",
+      "description": "Sorry, we couldn't find the page you're looking for. It may have been moved, deleted, or the URL might be incorrect.",
+      "help": "This usually happens when a page has been moved or removed, or if there's a typo in the web address.",
+      "suggestions": {
+        "checkUrl": "Check the web address for typos",
+        "useNavigation": "Use the navigation menu to find what you need",
+        "searchContent": "Try searching for the content you were looking for"
+      }
+    },
+    "500": {
+      "title": "Internal Server Error",
+      "description": "Something went wrong on our end. We're working to fix this issue.",
+      "help": "This is a temporary issue with our servers. Please try again in a few moments."
+    },
+    "serverError": {
+      "title": "Server Error",
+      "description": "We're experiencing technical difficulties. Please try again later.",
+      "help": "Our servers are temporarily unavailable. This is usually resolved quickly.",
+      "suggestions": {
+        "refresh": "Refresh the page in a few moments",
+        "wait": "Wait a few minutes and try again",
+        "contact": "Contact us if the problem persists"
+      }
+    },
+    "general": {
+      "title": "Something Went Wrong",
+      "description": "An unexpected error occurred. Please try again or contact support if the problem persists."
+    },
+    "actions": {
+      "goHome": "Go to Homepage",
+      "tryAgain": "Try Again"
+    },
+    "help": {
+      "moreInfo": "What can I do?"
+    },
+    "contact": {
+      "text": "If this problem continues, please let us know:",
+      "link": "Contact Support"
+    }
+  }
+}
