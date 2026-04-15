@@ -36,6 +36,40 @@ Create a locale source file in your consuming app:
 { "global": { "siteName": "Your App Name" } }
 ```
 
+## Claude Code Skills
+
+This package ships Claude Code skills — reference docs for i18n tasks and composables — in the `.claude/` directory.
+
+To copy them into your consuming app after install, add a `setup:claude` script:
+
+```json
+"scripts": {
+  "setup:claude": "cp -r node_modules/srcdev-nuxt-i18n/.claude/skills .claude/skills/srcdev-nuxt-i18n",
+  "postinstall": "nuxt prepare && npm run setup:claude"
+}
+```
+
+Then run once to bootstrap:
+
+```bash
+npm run setup:claude
+```
+
+Skills land in `.claude/skills/srcdev-nuxt-i18n/` and never conflict with your own project's skills or skills from other layers.
+
+### Using multiple SRCDEV layers
+
+If your app also consumes `srcdev-nuxt-components`, chain both copy commands so a single `postinstall` handles all layers:
+
+```json
+"scripts": {
+  "setup:claude": "cp -r node_modules/srcdev-nuxt-components/.claude/skills .claude/skills/srcdev-nuxt-components && cp -r node_modules/srcdev-nuxt-i18n/.claude/skills .claude/skills/srcdev-nuxt-i18n",
+  "postinstall": "nuxt prepare && npm run setup:claude"
+}
+```
+
+> See [.claude/skills/setup-postinstall.md](.claude/skills/setup-postinstall.md) for the full guide including CI setup.
+
 ## Repo structure
 
 ```text
