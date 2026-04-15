@@ -38,7 +38,7 @@ Create a locale source file in your consuming app:
 
 ## Repo structure
 
-```
+```text
 srcdev-nuxt-i18n/
 ├── package.json
 ├── nuxt.config.ts                  ← i18n module config, 3 locales
@@ -61,11 +61,13 @@ srcdev-nuxt-i18n/
         └── ar-YE.ts
 ```
 
-## Build commands
+## Commands
 
 ```bash
-npm run build:i18n        # regenerate i18n/locales/*.ts from i18n-source JSON
-npm run build:i18n:watch  # same, with file watching for dev
+npm run dev               # run nuxt dev + i18n watch concurrently
+npm run build             # build:i18n then nuxt build
+npm run build:i18n        # regenerate i18n/locales/*.ts from i18n-source JSON once
+npm run build:i18n:watch  # same, with file watching (used automatically by dev)
 ```
 
 ## Notes

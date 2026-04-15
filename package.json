@@ -10,9 +10,10 @@
     "nuxt.config.ts"
   ],
   "scripts": {
+    "build": "npm run build:i18n && nuxt build",
     "build:i18n": "node scripts/build-i18n.mjs",
     "build:i18n:watch": "node scripts/build-i18n.mjs --watch",
-    "dev": "nuxt dev",
+    "dev": "concurrently \"npm run build:i18n:watch\" \"nuxt dev\" --names \"i18n,nuxt\" --prefix-colors \"cyan,green\"",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@types/markdown-it": "14.1.2",
     "@types/node": "22.0.0",
+    "concurrently": "9.1.2",
     "nuxt": "4.3.0",
     "typescript": "5.8.3"
   },
