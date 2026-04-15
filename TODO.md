@@ -13,7 +13,9 @@ no components beyond what's needed for i18n. Pure i18n, exactly as intended.
 ### Where this came from
 
 The i18n system was originally built inside `srcdev-design-system` (at
-`/Users/simoncornforth/websites/srcdev-design-system`). That app also consumes
+`/Users/simoncornforth/websites/srcdev-design-system`). **This repo is the
+canonical source for all SRCDEV layer development — always cross-reference it
+when looking for original implementations, patterns, or decisions.** That app also consumes
 `srcdev-nuxt-components` as a layer. The decision was made to extract the i18n
 infrastructure into its own standalone layer so any future app can consume it
 independently without pulling in the components layer or anything else.
