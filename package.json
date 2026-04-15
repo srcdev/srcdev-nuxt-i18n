@@ -4,6 +4,7 @@
   "type": "module",
   "license": "MIT",
   "files": [
+    ".claude/",
     "composables",
     "i18n",
     "scripts",
