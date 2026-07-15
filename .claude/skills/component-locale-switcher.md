@@ -2,9 +2,11 @@
 
 ## Overview
 
-`LocaleSwitcher` renders one button per configured locale and calls `setLocale()` when clicked. It ships in this layer (`components/locale-switcher/LocaleSwitcher.vue`) and is available via Nuxt auto-import in any consuming app — no manual import needed.
+`LocaleSwitcher` is a renderless-by-default component: it owns the *logic* (reading `locales`/`locale`/`setLocale` from `useI18n()`), not the markup. By default it renders a button per configured locale, but the default markup is just fallback content for its default scoped slot — consumers who want a `<select>`, radio group, or anything else override the slot instead of reaching for a `variant` prop. It ships in this layer (`components/locale-switcher/LocaleSwitcher.vue`) and is available via Nuxt auto-import in any consuming app — no manual import needed.
 
 ## Usage
+
+### Default (button group)
 
 ```vue
 <template>
@@ -12,11 +14,38 @@
 </template>
 ```
 
-No props. It reads `locales`/`locale`/`setLocale` from `useI18n()` internally and renders a button per entry in the `locales` array (so it automatically reflects however many locales the consuming app has configured, including any added beyond the layer's base three).
+No props. Renders a button per entry in the `locales` array (so it automatically reflects however many locales the consuming app has configured, including any added beyond the layer's base three).
+
+### Custom markup via the default scoped slot
+
+Override the slot to get any UI you want — the component still owns the locale list, current locale, and switch logic:
+
+```vue
+<template>
+  <LocaleSwitcher v-slot="{ locales, currentLocale, setLocale }">
+    <select @change="setLocale(($event.target as HTMLSelectElement).value)">
+      <option
+        v-for="loc in locales"
+        :key="loc.code"
+        :value="loc.code"
+        :selected="loc.code === currentLocale"
+      >
+        {{ loc.name }}
+      </option>
+    </select>
+  </LocaleSwitcher>
+</template>
+```
+
+Slot scope: `locales` (the full `locales` array from `useI18n()`), `currentLocale` (the active locale code), `setLocale` (call with a locale code — same async function the default buttons use internally).
+
+Providing the slot fully replaces the default button-group markup (and its bundled CSS class names) — there's no way to keep the buttons and just restyle them via the slot; use the "Styling" section below for that instead.
+
+If you don't want a wrapper component at all, `useI18n()` already gives you `locales`/`locale`/`setLocale` directly — `LocaleSwitcher`'s slot exists purely for the convenience of not re-deriving that in every consuming app.
 
 ## Styling
 
-Unscoped `.locale-switcher` / `.locale-switcher button` / `.locale-switcher button.active` classes with placeholder colours (`lightgray` background, `#007acc` active state). Override in the consuming app's CSS — there is no CSS custom property token API yet (unlike `srcdev-nuxt-components`'s pattern); if you need per-instance overrides, either wrap it and target `.locale-switcher` from a parent selector, or open an issue against this layer to add token support.
+Unscoped `.locale-switcher` / `.locale-switcher button` / `.locale-switcher button.active` classes with placeholder colours (`lightgray` background, `#007acc` active state) — these only apply to the **default** button-group markup. Override in the consuming app's CSS — there is no CSS custom property token API yet (unlike `srcdev-nuxt-components`'s pattern); if you need per-instance overrides, either wrap it and target `.locale-switcher` from a parent selector, or open an issue against this layer to add token support.
 
 ## History
 
@@ -31,6 +60,8 @@ The `v-for="locale in locales"` loop variable shadowed the outer `locale` ref fr
 ```vue
 <button v-for="loc in locales" :class="{ active: loc.code === locale }">
 ```
+
+Later given a default scoped slot (wrapping the same button-group markup as fallback content) so consumers aren't limited to a button group — mirrors the `#cta` scoped-slot pattern already established on `PricingCard` in `srcdev-nuxt-components`, rather than growing a `variant` prop with a new template branch per UI shape.
 
 ## Notes
 

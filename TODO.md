@@ -252,3 +252,26 @@ actual bugs over exhaustive coverage:
 (needed by `@nuxt/test-utils`, previously unhoisted/missing from
 `node_modules` entirely) has a peer requirement of `@types/node@"^20.19.0 ||
 >=22.12.0"` that `22.0.0` didn't satisfy, blocking `npm install` outright.
+
+## Considered and deferred: currency/number formatting boilerplate
+
+`@nuxtjs/i18n` (via vue-i18n) supports `numberFormats`/`$n()` for
+locale-aware currency formatting, configured per locale code. Considered
+adding a default `numberFormats` block to this layer as boilerplate for
+consuming apps, but deliberately held off:
+
+- Currency is a **business decision independent of language**. A visitor
+  reading the `zh-CN` locale doesn't necessarily want prices in CNY — e.g.
+  `guidemyhair` bills in GBP regardless of which locale a visitor reads the
+  site in. Shipping a default `numberFormats` per locale (e.g. `zh-CN` → CNY)
+  would bake in a wrong assumption that most consumers would then have to
+  override anyway.
+- Only one real consumer (`guidemyhair`) exists so far, and it doesn't need
+  this — it currently formats prices via a manual `currencySymbol` string
+  prop on `PricingCard` (in `srcdev-nuxt-components`), not vue-i18n's number
+  formatting at all.
+
+Revisit if/when a second consumer actually needs locale-aware number/currency
+formatting — that use case will clarify whether currency should be configured
+per-locale, per-app (independent of locale), or left to the consuming app
+entirely.

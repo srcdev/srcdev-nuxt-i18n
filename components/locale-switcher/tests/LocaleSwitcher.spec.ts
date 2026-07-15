@@ -33,4 +33,27 @@ describe("LocaleSwitcher", () => {
   // component's own logic. The click handler itself is a one-line pass-through
   // to setLocale() — the active-class test above already covers the only real
   // logic (the code === locale comparison).
+
+  it("exposes locales, currentLocale, and setLocale via the default scoped slot", async () => {
+    const wrapper = await mountSuspended(LocaleSwitcher, {
+      slots: {
+        default: `<template #default="{ locales, currentLocale }">
+          <select data-testid="locale-select">
+            <option v-for="loc in locales" :key="loc.code" :value="loc.code" :selected="loc.code === currentLocale">
+              {{ loc.name }}
+            </option>
+          </select>
+        </template>`,
+      },
+    })
+
+    // The default button-group markup must not render when a slot is provided.
+    expect(wrapper.findAll("button")).toHaveLength(0)
+
+    const select = wrapper.find('[data-testid="locale-select"]')
+    expect(select.exists()).toBe(true)
+    const options = select.findAll("option")
+    expect(options.map(o => o.text())).toEqual(["English", "简体中文", "العربية"])
+    expect(options[0]?.attributes("selected")).toBeDefined() // currentLocale defaults to "en"
+  })
 })

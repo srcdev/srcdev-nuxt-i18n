@@ -1,14 +1,16 @@
 <template>
-  <div class="locale-switcher">
-    <button
-      v-for="loc in locales"
-      :key="loc.code"
-      :class="{ active: loc.code === locale }"
-      @click="switchLocale(loc.code)"
-    >
-      {{ loc.name }}
-    </button>
-  </div>
+  <slot :locales="locales" :current-locale="locale" :set-locale="switchLocale">
+    <div class="locale-switcher">
+      <button
+        v-for="loc in locales"
+        :key="loc.code"
+        :class="{ active: loc.code === locale }"
+        @click="switchLocale(loc.code)"
+      >
+        {{ loc.name }}
+      </button>
+    </div>
+  </slot>
 </template>
 
 <script setup lang="ts">

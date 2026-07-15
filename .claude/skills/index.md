@@ -25,7 +25,7 @@ Each skill is a single markdown file named `<area>-<task>.md`.
 ├── locale-add-locale.md              — add a new language to the layer (e.g. French)
 ├── locale-add-app-translations.md    — consuming app adds its own translation keys on top of the layer
 ├── locale-component-locales.md       — component-level locales/ pattern (auto-merged by build script)
-├── component-locale-switcher.md      — LocaleSwitcher: auto-imported button-per-locale switcher, no props
+├── component-locale-switcher.md      — LocaleSwitcher: default button-per-locale switcher with a scoped slot for custom UI (select, radio, etc.)
 ├── composable-use-raw-locale-data.md — useRawLocaleData<T>: typed, hydration-safe locale data access — required for arrays/objects, tm() renders raw AST JSON
 └── composable-use-markdown.md        — useMarkdown: renderMarkdown() for locale strings with links
 ```
