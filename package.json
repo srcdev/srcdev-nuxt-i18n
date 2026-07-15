@@ -18,19 +18,28 @@
     "build:i18n:watch": "node scripts/build-i18n.mjs --watch",
     "dev": "concurrently \"npm run build:i18n:watch\" \"nuxt dev\" --names \"i18n,nuxt\" --prefix-colors \"cyan,green\"",
     "prepare": "nuxt prepare",
-    "release": "release-it"
+    "release": "release-it",
+    "test": "vitest",
+    "test:run": "vitest --run",
+    "test:ui": "vitest --ui",
+    "test:update": "vitest --update"
   },
   "dependencies": {
     "@nuxtjs/i18n": "10.2.1",
     "markdown-it": "14.1.0"
   },
   "devDependencies": {
+    "@nuxt/test-utils": "3.23.0",
     "@types/markdown-it": "14.1.2",
-    "@types/node": "22.0.0",
+    "@types/node": "24.0.0",
+    "@vue/test-utils": "2.4.10",
     "concurrently": "9.1.2",
+    "happy-dom": "20.9.0",
     "nuxt": "4.3.0",
     "release-it": "20.0.1",
-    "typescript": "5.8.3"
+    "typescript": "5.8.3",
+    "vite": "8.1.4",
+    "vitest": "3.2.4"
   },
   "peerDependencies": {
     "nuxt": "^4.0.0"

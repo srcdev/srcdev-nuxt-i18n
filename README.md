@@ -1,5 +1,9 @@
 # srcdev-nuxt-i18n
 
+[![Tests](https://github.com/srcdev/srcdev-nuxt-i18n/workflows/Tests/badge.svg)](https://github.com/srcdev/srcdev-nuxt-i18n/actions/workflows/test.yml)
+[![npm version](https://badge.fury.io/js/srcdev-nuxt-i18n.svg)](https://badge.fury.io/js/srcdev-nuxt-i18n)
+[![License](https://img.shields.io/github/license/srcdev/srcdev-nuxt-i18n.svg)](https://github.com/srcdev/srcdev-nuxt-i18n/blob/main/LICENSE)
+
 A standalone [Nuxt layer](https://nuxt.com/docs/getting-started/layers) providing i18n infrastructure for SRCDEV apps. Consuming apps get locale switching, RTL support, and reusable error translations out of the box via Nuxt's `extends` mechanism.
 
 ## What's included

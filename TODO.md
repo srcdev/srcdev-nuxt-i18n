@@ -222,3 +222,33 @@ srcdev-nuxt-i18n/
 npm run build:i18n        # regenerate i18n/locales/*.ts from i18n-source JSON
 npm run build:i18n:watch  # same, with file watching for dev
 ```
+
+## Tests — added 2026-07-15
+
+19 vitest tests, matching `srcdev-nuxt-components`'s setup (`environment: "nuxt"`,
+`@nuxt/test-utils`, `happy-dom`). Prioritised regression coverage for today's
+actual bugs over exhaustive coverage:
+
+- `components/locale-switcher/tests/LocaleSwitcher.spec.ts` — uses
+  `mountSuspended` (not plain `@vue/test-utils` `mount`, which doesn't install
+  Nuxt's i18n plugin and throws `Need to install with app.use function`).
+  Regression-guards the loop-variable-shadowing bug: under the old code, no
+  button — including the default locale's — ever got the `active` class.
+  Deliberately does **not** assert on a real button click: calling the actual
+  `setLocale()` schedules a `detectBrowserLanguage.useCookie` cookie-write
+  watcher that fires after the test environment's `document` is torn down,
+  producing an unhandled rejection unrelated to the component's own logic.
+- `composables/tests/useRawLocaleData.spec.ts` — mocks `vue-i18n`'s `useI18n`
+  directly (not a global stub) since the composable imports it explicitly.
+  Covers the AST-normalisation regression directly: a `tm()`-shaped node
+  (`{ body: { static: "..." } }`) must normalise to the plain string.
+- `composables/tests/useMarkdown.spec.ts` — external-link `target`/`rel`
+  attributes, internal links unaffected.
+- `scripts/tests/build-i18n.spec.ts` — `deepMerge` exported for testability;
+  covers nested-object merging, array replace-not-merge semantics, and
+  non-mutation of the target object.
+
+`@types/node` had to be bumped from `22.0.0` to `24.0.0` — `vite@8.1.4`
+(needed by `@nuxt/test-utils`, previously unhoisted/missing from
+`node_modules` entirely) has a peer requirement of `@types/node@"^20.19.0 ||
+>=22.12.0"` that `22.0.0` didn't satisfy, blocking `npm install` outright.
