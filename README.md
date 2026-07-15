@@ -5,7 +5,8 @@ A standalone [Nuxt layer](https://nuxt.com/docs/getting-started/layers) providin
 ## What's included
 
 - **`@nuxtjs/i18n` v10** configured with 3 locales: `en-GB` (LTR), `zh-CN` (LTR), `ar-YE` (RTL)
-- **`useRawLocaleData<T>(path, defaultValue?)`** — hydration-safe locale data composable with AST normalisation
+- **`LocaleSwitcher`** component — renders a button per locale, calls `setLocale()` on click, available via Nuxt auto-import
+- **`useRawLocaleData<T>(path, defaultValue?)`** — hydration-safe locale data composable with AST normalisation. **Required** for arrays/objects — see "Known gotchas" below
 - **`useMarkdown()`** — markdown-it renderer; external links get `target="_blank" rel="noopener noreferrer"`
 - **Base translations** — `global.siteName` (blank, override in consuming app) and reusable `errors.*` keys (404, 500, serverError, general, actions, help, contact)
 - **Build script** — merges modular JSON source files into compiled `.ts` locale files
@@ -35,6 +36,29 @@ Create a locale source file in your consuming app:
 // i18n-source/locales/global/en-GB.json
 { "global": { "siteName": "Your App Name" } }
 ```
+
+### 4. Wire up reactive `<html lang>`/`dir` and `titleTemplate`
+
+Not automatic — add this to your consuming app's `app/app.vue` (or wherever
+your root layout lives):
+
+```vue
+<script setup lang="ts">
+const { locale, locales, t } = useI18n()
+
+const currentLocale = computed(() => locales.value.find(l => l.code === locale.value))
+
+useHead({
+  htmlAttrs: {
+    lang: computed(() => currentLocale.value?.language || currentLocale.value?.code || "en"),
+    dir: computed(() => currentLocale.value?.dir || "ltr"),
+  },
+  titleTemplate: computed(() => `%s - ${t("global.siteName")}`),
+})
+</script>
+```
+
+Without this, `<html lang>` stays static regardless of the active locale.
 
 ## Claude Code Skills
 
@@ -79,6 +103,9 @@ srcdev-nuxt-i18n/
 ├── tsconfig.json
 ├── scripts/
 │   └── build-i18n.mjs              ← merge JSON → .ts, supports --watch
+├── components/
+│   └── locale-switcher/
+│       └── LocaleSwitcher.vue      ← renders a button per locale, calls setLocale()
 ├── composables/
 │   ├── useRawLocaleData.ts         ← useRawLocaleData<T>(path, defaultValue?)
 │   └── useMarkdown.ts              ← useMarkdown() → { renderMarkdown(text) }
@@ -104,9 +131,33 @@ npm run build:i18n        # regenerate i18n/locales/*.ts from i18n-source JSON o
 npm run build:i18n:watch  # same, with file watching (used automatically by dev)
 ```
 
+## Known gotchas
+
+- **`tm()` renders raw AST JSON, not the string.** For array/object locale
+  values (e.g. a features list), `tm(path)` returns compiled Vue I18n message
+  AST nodes, not plain values — using it directly in a `v-for` renders
+  `{"type":0,"start":0,...}` as text. Always use `useRawLocaleData<T>(path,
+  default)` instead for arrays/objects; `$t()` remains correct for plain
+  strings.
+- **Testing via a local `file:` dependency needs one extra step.** npm does
+  not install a linked local package's own dependencies automatically — run
+  `npm install` inside `srcdev-nuxt-i18n` itself first, or a consumer's
+  install will fail with `Could not load @nuxtjs/i18n. Is it installed?`. This
+  same `npm install` also runs this repo's own `prepare` script (`nuxt
+  prepare`), which is required separately: `tsconfig.json` extends
+  `./.nuxt/tsconfig.json`, and Vite/jiti resolve the nearest `tsconfig.json`
+  when loading `.ts` locale files at runtime — without it, translations
+  silently fail to load (`WARN Failed to load messages for
+  locale...`). Neither of these applies to a real npm install.
+
 ## Notes
 
-- `langDir` in `nuxt.config.ts` resolves relative to the layer root, so it works correctly when consumed via `extends`
+- `langDir` resolves relative to `<rootDir>/i18n/` (not the layer root
+  directly) — `resolveI18nDir()` resolves to `<rootDir>/i18n` first, then
+  `langDir` is resolved relative to *that*. Since locale files live at
+  `i18n/locales/*.ts`, the correct value is `langDir: "locales"`. This applies
+  identically to a consuming app's own `i18n` config (see
+  `locale-add-app-translations.md`), not just this layer.
 - Generated `.ts` locale files are committed — consuming apps do not need to run the build script
 - RTL support (`ar-YE`) requires CSS in the consuming app (`:dir(rtl)` or `[dir="rtl"]` selectors) — not provided by this layer
 - Extracted from `srcdev-design-system`, which remains the canonical reference for original patterns and decisions

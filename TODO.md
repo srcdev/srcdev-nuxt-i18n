@@ -33,12 +33,27 @@ independently without pulling in the components layer or anything else.
 - The locale files in the design system were POC/reference content only, not real
   production translations
 
-### Key architectural decision: langDir in layers
+### Key architectural decision: langDir in layers — CORRECTED 2026-07-15
 
-`@nuxtjs/i18n` v10 resolves `langDir` relative to the layer's own root, so
-`langDir: "i18n/locales"` in this repo's `nuxt.config.ts` resolves correctly
-when consumed via `extends`. The generated `.ts` locale files are committed to
-the repo so consuming apps do not need to run the build script.
+**The original note here was wrong** and shipped a real bug until the first
+consuming app (`guidemyhair`) actually tested it. `@nuxtjs/i18n` v10 does
+**not** resolve `langDir` relative to the layer's own root directly — it
+resolves in two steps (confirmed by reading `resolveI18nDir` and
+`applyLayerOptions` in `node_modules/@nuxtjs/i18n/dist/module.mjs`):
+
+1. `resolveI18nDir(layer, i18n)` → `resolve(layer.config.rootDir, i18n.restructureDir ?? "i18n")`
+   — i.e. `<rootDir>/i18n` by default.
+2. `langDir` is then resolved **relative to that i18n directory**:
+   `resolve(resolveI18nDir(...), i18n.langDir ?? "locales")`.
+
+So the correct value, given locale files live at `<rootDir>/i18n/locales/*.ts`,
+is `langDir: "locales"` — **not** `langDir: "i18n/locales"`. The old value
+resolved to the nonexistent `<rootDir>/i18n/i18n/locales` and would have
+silently failed to load any translations for every consumer. Fixed in
+`nuxt.config.ts`. This same wrong value was also copied into
+`.claude/skills/locale-add-app-translations.md` and the README — both fixed
+too. The generated `.ts` locale files are committed to the repo so consuming
+apps do not need to run the build script.
 
 ### What was stripped out
 
@@ -81,56 +96,84 @@ over. This layer's `i18n-source` contains only:
 
 ## TODO — what still needs doing
 
-### 1. Wire up a consuming app locally (test it works)
+### 1. ~~Wire up a consuming app locally~~ — DONE 2026-07-15
 
-The consuming app is TBD — `luxury-locs-by-natasha-nuxt3` may get a fun
-easter-egg translation but is not confirmed as the first production consumer.
-Any Nuxt 4 app can consume this layer.
+First real consumer: `guidemyhair` (`/Users/simoncornforth/websites/guidemyhair`),
+tested via a `file:../srcdev-nuxt-i18n` dependency. This is what surfaced and
+fixed the `langDir` bug above, plus the issues in "Local `file:` testing
+gotchas" below. Confirmed working end-to-end: `/cn` and `/ary` routes resolve,
+`i18n_redirected` cookie set correctly, SSR payload shows correct resolved
+locale, reactive `<html lang>`/`dir` (via the pattern in `locale-add-app-translations.md`),
+and `useRawLocaleData` correctly avoids the `tm()` AST-in-template bug (see
+"tm() renders AST JSON" below).
 
-Steps:
+### Local `file:` testing gotchas (found via the guidemyhair test)
 
-- Add `@nuxtjs/i18n` and `markdown-it` to the consuming app's `package.json`
-- Add `extends: ["../srcdev-nuxt-i18n"]` to its `nuxt.config.ts`
-- Run `npm install` in both repos
-- Run `nuxt dev` in the consuming app and verify i18n is active (locale switching,
-  `$t()`, `useRawLocaleData()` all available)
-- Check the browser language detection cookie (`i18n_redirected`) is working
+Two problems only show up when testing via a local `file:` dependency (not
+when installed for real from npm) — worth knowing before testing again:
 
-### 2. Override `global.siteName` in the consuming app
+- **The layer's own `node_modules` must exist.** A `file:` dependency is a
+  symlink to the real directory, not a copy — npm does not automatically run
+  `npm install` inside a linked local package to fetch its own dependencies.
+  Run `npm install` inside `srcdev-nuxt-i18n` itself first, or the consuming
+  app's install will fail with `Could not load @nuxtjs/i18n. Is it installed?`
+- **`tsconfig.json` extends a path that doesn't exist locally.** This repo's
+  `tsconfig.json` extends `./.nuxt/tsconfig.json`, which only exists after
+  running `nuxt prepare` in this directory. It's not in `package.json`'s
+  `files` array so it never ships to a real npm install, but a `file:` link
+  exposes the whole repo including this file — Vite/jiti resolve the nearest
+  `tsconfig.json` when loading the `.ts` locale files at runtime, hit the
+  broken `extends`, and silently fail to load messages (`WARN Failed to load
+  messages for locale...`). Fix: run `nuxt prepare` inside `srcdev-nuxt-i18n`
+  once before testing a consumer against it locally.
+- The layer's own `package.json` had `"postinstall": "nuxt prepare"`, which
+  **failed** the moment the layer was installed as a `file:` dependency with
+  an empty `node_modules` inside it (no `nuxt` CLI resolvable) — this
+  reproduces identically if renamed to the `prepare` lifecycle hook, since
+  npm runs `prepare` for `file:`/git "install from source" dependencies too.
+  **Resolution**: this is only a problem when the layer's own `node_modules`
+  is missing `nuxt` — once `npm install` has been run inside
+  `srcdev-nuxt-i18n` itself (see the point above), `prepare` succeeds even
+  via a `file:` link, since it resolves `nuxt` from the layer's own nested
+  `node_modules/.bin`. Confirmed via `npm pack` + install-as-tarball that
+  `prepare` does **not** run at all for a normal registry/tarball install —
+  it's exclusively a `file:`/git-dependency behaviour. So a `"prepare": "nuxt
+  prepare"` script (matching the `srcdev-nuxt-components` convention) is safe
+  to keep: harmless for real npm consumers, and only requires one extra
+  `npm install` step inside this repo for local `file:` testing.
 
-Each consuming app should provide its own `i18n-source` with at minimum:
+### tm() renders AST JSON instead of plain text
 
-```json
-// i18n-source/locales/global/en-GB.json
-{ "global": { "siteName": "Luxury Locs by Natasha" } }
-```
+`tm()` returns compiled Vue I18n message AST nodes for array/object paths, not
+plain values. Using `tm(path) as string[]` directly in a `v-for` (e.g. for a
+features list) renders the raw AST object (`{"type":0,"start":0,...}`) as
+text instead of the string. **Always use `useRawLocaleData<T>(path, default)`
+for arrays/objects** — this is exactly what that composable exists to solve
+(see `composable-use-raw-locale-data.md`). Found and fixed on the pricing
+page's feature lists in `guidemyhair`.
 
-Decide: does the consuming app run the build script itself (adds its own
-`build:i18n` script + `i18n/locales/` output), or does it rely solely on
-the layer's base translations and just use `$t()` directly for app content?
-
-The cleaner long-term pattern is probably: consuming app has its own
-`i18n-source/` and its own `build:i18n` script, outputs to its own
-`i18n/locales/`, and adds those locale files to its own `nuxt.config.ts`
-i18n config. The layer provides the base, the app adds on top.
-
-### 3. Publish to npm
+### 2. Publish to npm
 
 When the layer is ready for use across multiple projects:
 
 - Create a GitHub repo for `srcdev-nuxt-i18n`
 - Push and create a release
-- `npm publish` (already configured: `private` not set, `files` array defined)
+- `npm publish` (already configured: `private` not set, `files` array defined
+  — now includes `components/`, see below)
 - Update consuming apps to use the npm package name instead of a local path:
   `extends: ["srcdev-nuxt-i18n"]`
 
-### 4. Consider adding a locale-switcher component
+### 3. ~~Consider adding a locale-switcher component~~ — DONE 2026-07-15
 
-The design system has a `locale-switcher` component that could live in this layer,
-making it available to all consuming apps automatically. Assess whether this makes
-sense once the first consuming app is working.
+Added `components/locale-switcher/LocaleSwitcher.vue`, carried over from
+`srcdev-design-system` with one bug fix: the original had
+`:class="{ active: locale === locale.code }"` inside a `v-for="locale in
+locales"` — the loop variable shadowed the outer `locale` ref from
+`useI18n()`, so the comparison was always false. Renamed the loop variable to
+`loc` and compare against the outer `locale` (auto-unwrapped in the
+template). `package.json`'s `files` array updated to include `components`.
 
-### 5. Update srcdev-design-system to use this layer
+### 4. Update srcdev-design-system to use this layer
 
 Once published to npm, `srcdev-design-system` should be updated to:
 

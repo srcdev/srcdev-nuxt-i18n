@@ -21,7 +21,16 @@ npm install srcdev-nuxt-i18n
 
 **From a local path (during development):**
 
-No install needed — reference the path directly in step 2.
+Reference the path directly in step 2, but first run `npm install` inside
+`srcdev-nuxt-i18n` itself — npm does not install a `file:`-linked local
+package's own dependencies automatically, so skipping this makes the
+consuming app's install fail with `Could not load @nuxtjs/i18n. Is it
+installed?`. This same `npm install` also runs the layer's own `prepare`
+script (`nuxt prepare`), which is required separately: its `tsconfig.json`
+extends `./.nuxt/tsconfig.json`, and without it Vite/jiti fail to resolve
+that chain when loading the `.ts` locale files at runtime, so translations
+silently fail to load (`WARN Failed to load messages for locale...`).
+Neither of these applies once installed for real from npm.
 
 ### 2. Add to `extends` in `nuxt.config.ts`
 
@@ -59,7 +68,41 @@ i18n: {
 
 Or add a `i18n-source/locales/global/en-GB.json` in the consuming app and run the build script (see `locale-add-app-translations` skill).
 
-### 5. Verify
+### 5. Wire up reactive `<html lang>`/`dir` and `titleTemplate`
+
+Not automatic — add this to the consuming app's `app/app.vue` (or root layout):
+
+```vue
+<template>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
+</template>
+
+<script setup lang="ts">
+const { locale, locales, t } = useI18n()
+
+const currentLocale = computed(() => locales.value.find(l => l.code === locale.value))
+
+useHead({
+  htmlAttrs: {
+    lang: computed(() => currentLocale.value?.language || currentLocale.value?.code || "en"),
+    dir: computed(() => currentLocale.value?.dir || "ltr"),
+  },
+  titleTemplate: computed(() => `%s - ${t("global.siteName")}`),
+})
+</script>
+```
+
+Without this, `<html lang>` stays static regardless of the active locale — it
+does not update automatically just from installing the layer.
+
+### 6. Add the `LocaleSwitcher`
+
+Drop `<LocaleSwitcher />` anywhere in your layout (e.g. the nav) — it's
+auto-imported from the layer and needs no props.
+
+### 7. Verify
 
 Run the consuming app:
 
@@ -73,6 +116,8 @@ Check:
 - `$t('errors.404.title')` resolves correctly in a test component
 - The `i18n_redirected` cookie is set on first visit
 - `useRawLocaleData` and `useMarkdown` are available via auto-import in `<script setup>`
+- Visiting `/cn` or `/ary` updates `<html lang>`/`dir` if step 5 was done
+- Any array/object translation (feature lists, nav items, etc.) is read via `useRawLocaleData`, not `tm()` — see "Known gotchas" in the main README
 
 ## Notes
 

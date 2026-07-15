@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   modules: ["@nuxtjs/i18n"],
   i18n: {
     defaultLocale: "en",
-    langDir: "i18n/locales",
+    langDir: "locales",
     detectBrowserLanguage: {
       useCookie: true,
       cookieKey: "i18n_redirected",

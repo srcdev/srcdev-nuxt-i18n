@@ -2,9 +2,11 @@
   "name": "srcdev-nuxt-i18n",
   "version": "0.0.1",
   "type": "module",
+  "main": "nuxt.config.ts",
   "license": "MIT",
   "files": [
     ".claude/",
+    "components",
     "composables",
     "i18n",
     "scripts",
@@ -15,7 +17,8 @@
     "build:i18n": "node scripts/build-i18n.mjs",
     "build:i18n:watch": "node scripts/build-i18n.mjs --watch",
     "dev": "concurrently \"npm run build:i18n:watch\" \"nuxt dev\" --names \"i18n,nuxt\" --prefix-colors \"cyan,green\"",
-    "postinstall": "nuxt prepare"
+    "prepare": "nuxt prepare",
+    "release": "release-it"
   },
   "dependencies": {
     "@nuxtjs/i18n": "10.2.1",
@@ -26,9 +29,20 @@
     "@types/node": "22.0.0",
     "concurrently": "9.1.2",
     "nuxt": "4.3.0",
+    "release-it": "20.0.1",
     "typescript": "5.8.3"
   },
   "peerDependencies": {
     "nuxt": "^4.0.0"
+  },
+  "release-it": {
+    "$schema": "https://unpkg.com/release-it/schema/release-it.json",
+    "git": {
+      "commitMessage": "chore(release): release v${version}"
+    },
+    "github": {
+      "release": true,
+      "releaseName": "v${version}"
+    }
   }
 }

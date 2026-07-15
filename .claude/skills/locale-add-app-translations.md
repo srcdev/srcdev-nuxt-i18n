@@ -32,7 +32,7 @@ export default {
 
 ```ts
 i18n: {
-  langDir: "i18n/locales", // relative to the consuming app root
+  langDir: "locales", // resolves to <rootDir>/i18n/locales — see "langDir gotcha" below
   locales: [
     { code: "en", language: "en-GB", file: "en-GB.ts" },
     { code: "cn", language: "zh-CN", file: "zh-CN.ts" },
@@ -42,6 +42,18 @@ i18n: {
 ```
 
 No `defaultLocale` or `detectBrowserLanguage` needed — those are inherited from the layer.
+
+#### `langDir` gotcha
+
+`@nuxtjs/i18n` resolves `langDir` in two steps: first it resolves an i18n
+directory (`<rootDir>/i18n` by default), then resolves `langDir` **relative
+to that**, not relative to `rootDir` directly. So if your locale files live
+at `<rootDir>/i18n/locales/*.ts` (the standard layout, matching this repo's
+own `i18n/locales/`), the correct value is `langDir: "locales"` — **not**
+`langDir: "i18n/locales"`, which resolves to the nonexistent
+`i18n/i18n/locales` and silently fails to load any translations. This exact
+mistake shipped in this layer's own `nuxt.config.ts` until a real consumer
+test caught it — see `TODO.md`.
 
 ---
 
@@ -81,7 +93,7 @@ i18n-source/
 
 ### 4. Declare the generated files in `nuxt.config.ts`
 
-Same as Approach A step 2 — point `langDir` at the consuming app's `i18n/locales/`.
+Same as Approach A step 2 — `langDir: "locales"` (see the `langDir` gotcha above), pointing at the consuming app's `i18n/locales/`.
 
 ### 5. Run the build
 
@@ -94,3 +106,5 @@ npm run build:i18n
 - The layer's `i18n/locales/*.ts` files are always loaded first. The consuming app's files are merged on top — the app wins on any overlapping key.
 - Keep `global.siteName` in the consuming app's source, never in the layer — it is app-specific by definition.
 - If using Approach B, commit the generated `i18n/locales/*.ts` files to the consuming app's repo so CI does not need to run the build script.
+- **Any array or object value in your translation JSON** (e.g. a page's feature list, FAQ items, nav links) **must be read with `useRawLocaleData<T>()`, not `tm()`.** `tm()` returns compiled AST nodes for non-string paths — rendering it directly in a `v-for` shows raw AST JSON on the page instead of the string. See `composable-use-raw-locale-data.md`. `$t()` remains correct for plain string keys.
+- Namespace page-specific keys under `pages.<pageName>.*` to match the `i18n-source/locales/pages/<pageName>/` directory — this mirrors `srcdev-design-system`'s convention and keeps keys discoverable from the file path.
