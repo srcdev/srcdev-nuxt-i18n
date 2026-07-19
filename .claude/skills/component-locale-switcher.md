@@ -41,6 +41,40 @@ Slot scope: `locales` (the full `locales` array from `useI18n()`), `currentLocal
 
 Providing the slot fully replaces the default button-group markup (and its bundled CSS class names) — there's no way to keep the buttons and just restyle them via the slot; use the "Styling" section below for that instead.
 
+### Custom markup: flag-icon buttons
+
+A consuming app may want a flag icon per locale rather than (or alongside) the text name — e.g. using `srcdev-nuxt-components`'s `InputButtonCore` and `@nuxt/icon`:
+
+```vue
+<template>
+  <LocaleSwitcher v-slot="{ locales, currentLocale, setLocale }">
+    <div class="locale-switcher-buttons">
+      <InputButtonCore
+        v-for="loc in locales"
+        :key="loc.code"
+        :variant="loc.code === currentLocale ? 'primary' : 'tertiary'"
+        :button-text="loc.name"
+        @click="setLocale(loc.code)"
+      >
+        <template #left>
+          <Icon :name="`flag:${flagCode(loc.language)}-4x3`" aria-hidden="true" />
+        </template>
+      </InputButtonCore>
+    </div>
+  </LocaleSwitcher>
+</template>
+
+<script setup lang="ts">
+// Derives the flag icon's country code from a locale's language tag, e.g. "en-GB" -> "gb"
+const flagCode = (language?: string) => language?.split("-").at(-1)?.toLowerCase() ?? ""
+</script>
+```
+
+Two things this relies on that are **not** provided by this layer:
+
+- **`@iconify-json/flag`** must be installed in the consuming app (`npm i -D @iconify-json/flag`) — it's not one of this layer's dependencies. Icon names follow `flag:<country-code>-4x3` (rectangular) or `flag:<country-code>-1x1` (square).
+- **Derive the country code from `language`, not `code`.** A locale's short `code` (e.g. `cn`, `ary`) is an arbitrary identifier chosen by the consuming app, not a reliable ISO 3166 country code — `ary` is actually the ISO 639-3 code for Moroccan Arabic, not a country at all. The `language` field (a full BCT-47-style tag like `en-GB`/`zh-CN`/`ar-YE`) has the real country code as its last segment, which is what `flagCode()` extracts.
+
 If you don't want a wrapper component at all, `useI18n()` already gives you `locales`/`locale`/`setLocale` directly — `LocaleSwitcher`'s slot exists purely for the convenience of not re-deriving that in every consuming app.
 
 ## Styling
