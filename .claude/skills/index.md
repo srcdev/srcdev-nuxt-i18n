@@ -19,7 +19,7 @@ Each skill is a single markdown file named `<area>-<task>.md`.
 ```text
 .claude/skills/
 ├── index.md                          — this file
-├── release-notes.md                  — produce release notes as a fenced markdown block from git log
+├── release-notes.md                  — maintainer only: release notes for the just-published release (run via /create-release-notes)
 ├── setup-consumer.md                 — wire up a consuming Nuxt app to extend this layer
 ├── setup-postinstall.md              — automate nuxt prepare + Claude skills copy via postinstall
 ├── locale-add-locale.md              — add a new language to the layer (e.g. French)
