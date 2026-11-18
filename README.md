@@ -20,8 +20,10 @@ A standalone [Nuxt layer](https://nuxt.com/docs/getting-started/layers) providin
 ### 1. Install peer dependencies in your consuming app
 
 ```bash
-npm install @nuxtjs/i18n@10.2.1 markdown-it
+npm install @nuxtjs/i18n@10.6.0 markdown-it@15.0.3
 ```
+
+Requires Node `>=24.15.0` and Nuxt `^4.6.0` (developed and tested against Nuxt 4.6.4, matching `srcdev-nuxt-components`).
 
 ### 2. Extend the layer
 

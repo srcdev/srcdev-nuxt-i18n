@@ -4,6 +4,9 @@
   "type": "module",
   "main": "nuxt.config.ts",
   "license": "MIT",
+  "engines": {
+    "node": ">=24.15.0"
+  },
   "files": [
     ".claude/",
     "components",
@@ -25,24 +28,23 @@
     "test:update": "vitest --update"
   },
   "dependencies": {
-    "@nuxtjs/i18n": "10.2.1",
-    "markdown-it": "14.1.0"
+    "@nuxtjs/i18n": "10.6.0",
+    "markdown-it": "15.0.3"
   },
   "devDependencies": {
-    "@nuxt/test-utils": "3.23.0",
-    "@types/markdown-it": "14.1.2",
-    "@types/node": "24.0.0",
-    "@vue/test-utils": "2.4.10",
-    "concurrently": "9.1.2",
-    "happy-dom": "20.9.0",
-    "nuxt": "4.3.0",
-    "release-it": "20.0.1",
-    "typescript": "5.8.3",
-    "vite": "8.1.4",
-    "vitest": "3.2.4"
+    "@nuxt/test-utils": "4.4.0",
+    "@types/node": "24.19.2",
+    "@vue/test-utils": "2.5.1",
+    "concurrently": "10.0.7",
+    "happy-dom": "21.0.4",
+    "nuxt": "4.6.4",
+    "release-it": "21.1.2",
+    "typescript": "5.9.3",
+    "vite": "8.3.8",
+    "vitest": "5.1.0"
   },
   "peerDependencies": {
-    "nuxt": "^4.0.0"
+    "nuxt": "^4.6.0"
   },
   "release-it": {
     "$schema": "https://unpkg.com/release-it/schema/release-it.json",
@@ -53,5 +55,8 @@
       "release": true,
       "releaseName": "v${version}"
     }
+  },
+  "overrides": {
+    "vite": "8.3.8"
   }
 }

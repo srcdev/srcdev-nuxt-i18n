@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: "2025-07-15",
+  compatibilityDate: "2026-05-20",
   modules: ["@nuxtjs/i18n"],
   i18n: {
     defaultLocale: "en",
@@ -42,5 +42,12 @@ export default defineNuxtConfig({
   ],
   typescript: {
     strict: true,
+  },
+  vite: {
+    // Pre-bundle Nuxt DevTools' client deps so Vite doesn't discover them at runtime and
+    // force a page reload on first dev load (matches srcdev-nuxt-components).
+    optimizeDeps: {
+      include: ["@vue/devtools-core", "@vue/devtools-kit"],
+    },
   },
 })

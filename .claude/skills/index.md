@@ -27,7 +27,8 @@ Each skill is a single markdown file named `<area>-<task>.md`.
 ├── locale-component-locales.md       — component-level locales/ pattern (auto-merged by build script)
 ├── component-locale-switcher.md      — LocaleSwitcher: default button-per-locale switcher with a scoped slot for custom UI (select, radio, etc.)
 ├── composable-use-raw-locale-data.md — useRawLocaleData<T>: typed, hydration-safe locale data access — required for arrays/objects, tm() renders raw AST JSON
-└── composable-use-markdown.md        — useMarkdown: renderMarkdown() for locale strings with links
+├── composable-use-markdown.md        — useMarkdown: renderMarkdown() for locale strings with links
+└── dependencies-upgrade.md           — maintainer only: age-gated, phased dependency upgrade (run via /upgrade-packages)
 ```
 
 ## Skill file template
