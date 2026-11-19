@@ -8,12 +8,13 @@
     "node": ">=24.15.0"
   },
   "files": [
-    ".claude/",
+    ".claude/skills/",
     "components",
     "composables",
     "i18n",
     "scripts",
-    "nuxt.config.ts"
+    "nuxt.config.ts",
+    "!**/tests/"
   ],
   "scripts": {
     "build": "npm run build:i18n && nuxt build",
